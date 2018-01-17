@@ -1,9 +1,14 @@
 import scrapy
-import random
+import getpass
+from urllib.request import urlretrieve
+
+
 
 class ImageSpider(scrapy.Spider):
     name = "image_spider"
-    start_urls = ['https://gravuresidol.com/liu-you-qi-05/']
+    start_urls = ['WEBSITE']
+    username = getpass.getuser()
+    path = 'C:\\Users\\%s\\Downloads\\Images\\'%username
 
     def parse(self, response):
         TITLE_SELECTOR = '.entry-title'
@@ -18,12 +23,15 @@ class ImageSpider(scrapy.Spider):
 
         yield {'Title': post_name,
                'Image': tmp}
-        # # yield res
-        #
-        # NEXT_PAGE_SELECTOR = '.wpp-thumbnail wpp_featured_stock wp-post-image a ::attr(href)'
-        # next_page = response.css(NEXT_PAGE_SELECTOR).extract_first()
-        # if next_page:
-        #     yield scrapy.Request(
-        #         response.urljoin(next_page),
-        #         callback=self.parse
-        #     )
+
+        for idx,url in enumerate(tmp):
+            urlretrieve(url, self.path + "%s_%s.jpg"%(post_name[0].split(' ')[2], idx))
+
+        NEXT_PAGE_SELECTOR = '.wpp-post-title'
+        next_page = response.css(NEXT_PAGE_SELECTOR)
+        if next_page:
+            for page in next_page.css('a ::attr(href)').extract_first():
+                yield scrapy.Request(
+                    response.urljoin(page),
+                    callback=self.parse
+                )
