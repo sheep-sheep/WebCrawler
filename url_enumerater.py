@@ -1,19 +1,34 @@
 import getpass
 import urllib
 from urllib import request
-from urllib.request import urlretrieve, Request
+from urllib.request import Request
 import concurrent.futures
+from datetime import datetime
+from functools import wraps
+
 
 url = 'http://www.xiuren.org/xiuren/XiuRen-N00{episode}/{imgnum}.jpg'
 
-episodes = ['{0:0=2d}'.format(n) for n in range(630, 650)]
-imgnums = ['{0:0=4d}'.format(n) for n in range(1, 70)]
+episodes = ['{0:0=2d}'.format(n) for n in range(553, 600)]
+imgnums = ['{0:0=4d}'.format(n) for n in range(1, 100)]
 username = getpass.getuser()
 path = 'C:\\Users\\%s\\Downloads\\Images\\'%username
 
 
-#TODO: add a timeit decorator
 
+def timeit(func):
+
+    @wraps(func)
+    def timed(*args, **kwargs):
+        startTime = datetime.now()
+        res = func(*args, **kwargs)
+        endTime = datetime.now()
+        print('%r EpiSode %r with %s images took %2.2f sec' % (func.__name__, args, res, (endTime - startTime).total_seconds()))
+        return res
+
+    return timed
+
+@timeit
 def getImages(episode):
     n = 1
     for imgnum in imgnums:
@@ -29,14 +44,14 @@ def getImages(episode):
                 f.write(the_page)
         except urllib.error.HTTPError as e:
             break
-    return 'Episode %s ends at %s' % (episode, imgnum)
+    return imgnum
 
 
+@timeit
 def main():
     with concurrent.futures.ProcessPoolExecutor() as executor:
         res = executor.map(getImages, episodes)
-        for sentence in res:
-            print(sentence)
+        list(res)
 
 
 if __name__ == '__main__':
