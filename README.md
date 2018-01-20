@@ -10,4 +10,5 @@
 
 6. CPU analysis when querying 50 url and download images on a 4-core CPU
 The up-down looks reall nice and has a harmony in it!
-![WebCrawler](images/4 Cores.png "Screenshot of my taskmanager")
+
+    ![alt text](https://github.com/sheep-sheep/WebCrawler/blob/master/images/4%20Cores.PNG "CPU4")
